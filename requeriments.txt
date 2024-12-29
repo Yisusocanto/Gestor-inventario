@@ -1,0 +1,8 @@
+# GUI
+tkinter
+
+# Base de datos
+sqlite3
+
+# Tipos
+typing
