@@ -22,7 +22,7 @@ Sistema de escritorio para gestionar inventario de productos, desarrollado en Py
 
 1. Clonar el repositorio:
 ```bash
-git clone https://github.com/Yisusocanto/Gestor-inventario
+git clone https://github.com/Yisusocanto/Gestor-inventario.git
 ```
 
 2. Instalar las dependencias:

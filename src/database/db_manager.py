@@ -10,6 +10,7 @@ class DatabaseManager:
     def __init__(self, db_name: str = "inventario.db"):
         self.db_name = db_name
         self.inicializar_db()
+        self.inicializar_db_ventas()
 
     def inicializar_db(self):
         """Crea la tabla de productos si no existe"""
@@ -22,6 +23,20 @@ class DatabaseManager:
                     categoria TEXT NOT NULL,
                     precio REAL NOT NULL,
                     cantidad INTEGER NOT NULL
+                )
+            ''')
+            
+    def inicializar_db_ventas(self):
+        """Crea la tabla de ventas si no existe"""
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS ventas (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    product_id INTEGER NOT NULL,
+                    cantidad INTEGER NOT NULL,
+                    fecha TEXT NOT NULL,
+                    FOREIGN KEY (product_id) REFERENCES productos(id)
                 )
             ''')
 
@@ -60,8 +75,42 @@ class DatabaseManager:
                     precio=row[3],
                     cantidad=row[4]
                 ))
+            
             return productos
-
+        
+    def obtener_busqueda(self, filtro: str, busqueda: str):
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            
+            if filtro == "nombre":
+                cursor.execute('''
+                    SELECT * FROM productos
+                    WHERE nombre LIKE ?
+                    ''', (f"%{busqueda}%",))
+            elif filtro == "categoria":
+                cursor.execute('''
+                    SELECT * FROM productos
+                    WHERE categoria LIKE ?
+                    ''', (f"%{busqueda}%",))
+            elif filtro == "precio":
+                cursor.execute('''
+                    SELECT * FROM productos
+                    WHERE precio <= ?
+                    ''', (busqueda,))
+            else:
+                return []
+            
+            productos = []
+            for row in cursor.fetchall():
+                productos.append(Producto(
+                    id=row[0],
+                    nombre=row[1],
+                    categoria=row[2],
+                    precio=row[3],
+                    cantidad=row[4]
+                ))
+        
+            return productos
     def insertar_producto(self, producto: Producto) -> bool:
         """Inserta un nuevo producto en la base de datos"""
         try:

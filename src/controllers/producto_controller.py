@@ -41,7 +41,7 @@ class ProductoController:
             return False, f"Error inesperado: {str(e)}"
 
     def actualizar_producto(self, id: int, nombre: str, categoria: str, 
-                          precio: str, cantidad: str) -> Tuple[bool, str]:
+                        precio: str, cantidad: str) -> Tuple[bool, str]:
         try:
             if not all([nombre, categoria, precio, cantidad]):
                 return False, "Todos los campos son requeridos"
@@ -89,3 +89,7 @@ class ProductoController:
     def obtener_todos_productos(self) -> List[Producto]:
         """Obtiene todos los productos"""
         return self.db.obtener_todos_productos()
+    
+    def obtener_busqueda(self, filtro: str, busqueda: str):
+        '''Obtiene un producto buscado por un filtro de la base de datos si existe'''
+        return self.db.obtener_busqueda(filtro, busqueda)

@@ -34,6 +34,13 @@ class MainWindow:
 
         # Botones
         self.crear_botones()
+        
+        #frame para busquedas
+        self.frame_busqueda = tk.Frame(self.ventana)
+        self.frame_busqueda.pack(pady=10)
+        
+        #campos de busqueda
+        self.crear_campos_busqueda()
 
         # Treeview
         self.crear_treeview()
@@ -49,6 +56,28 @@ class MainWindow:
             entry = tk.Entry(self.frame_entrada)
             entry.grid(row=1, column=i, padx=5, pady=5)
             self.entries[label.lower()] = entry
+            
+    def crear_campos_busqueda(self):
+        '''Crea todos los campos (label, entry, combobox y boton) del apartado de busqueda de producto'''
+        label_busqueda = tk.Label(self.frame_busqueda, text="Buscar producto por:")
+        label_busqueda.pack(side=tk.LEFT, padx=5)
+        
+        # Guarda la referencia al Combobox
+        self.opciones_busqueda = ttk.Combobox(
+            self.frame_busqueda,
+            values=["nombre", "categoria", "precio"])
+        self.opciones_busqueda.pack(side=tk.LEFT, padx=5)
+        
+        # Guarda la referencia al Entry
+        self.entry_busqueda = tk.Entry(self.frame_busqueda)
+        self.entry_busqueda.pack(side=tk.LEFT, padx=5)
+        
+        boton_busqueda = tk.Button(
+            self.frame_busqueda, 
+            text="BUSCAR", 
+            command=self.actualizar_treeview_busqueda
+        )
+        boton_busqueda.pack(side=tk.LEFT, padx=5)
 
     def crear_botones(self):
         """Crea los botones de acción"""
@@ -56,7 +85,8 @@ class MainWindow:
             ("Crear", self.crear_producto),
             ("Eliminar", self.eliminar_producto),
             ("Editar", self.editar_producto),
-            ("Vender", self.mostrar_ventana_ventas)
+            ("Vender", self.mostrar_ventana_ventas),
+            ("Refrescar", self.actualizar_treeview)
         ]
 
         for texto, comando in botones:
@@ -89,6 +119,26 @@ class MainWindow:
                 producto.precio,
                 producto.cantidad
             ))
+            
+    def actualizar_treeview_busqueda(self):
+        '''Actualiza el treeview con el producto buscado cuando se clickea el boton buscar'''
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+            
+        filtro = self.opciones_busqueda.get().capitalize()
+        busqueda = self.entry_busqueda.get().capitalize()
+
+        productos = self.producto_controller.obtener_busqueda(filtro, busqueda)
+        if productos:
+            for producto in productos:
+                self.tree.insert("", "end", values=(
+                producto.id,
+                producto.nombre,
+                producto.categoria,
+                producto.precio,
+                producto.cantidad
+                ))
+                
 
     def crear_producto(self):
         """Maneja la creación de un nuevo producto"""
