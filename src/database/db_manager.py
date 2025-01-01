@@ -79,19 +79,23 @@ class DatabaseManager:
             return productos
         
     def obtener_busqueda(self, filtro: str, busqueda: str):
+        '''obtiene uno o varios productos desde la base de datos mediante un filtro de busqueda'''
         with self.get_connection() as conn:
             cursor = conn.cursor()
             
+            #busca por nombre
             if filtro == "nombre":
                 cursor.execute('''
                     SELECT * FROM productos
                     WHERE nombre LIKE ?
                     ''', (f"%{busqueda}%",))
+            #busca por categoria
             elif filtro == "categoria":
                 cursor.execute('''
                     SELECT * FROM productos
                     WHERE categoria LIKE ?
                     ''', (f"%{busqueda}%",))
+            #busca por rango de precios entre 0 a n
             elif filtro == "precio":
                 cursor.execute('''
                     SELECT * FROM productos
@@ -111,6 +115,7 @@ class DatabaseManager:
                 ))
         
             return productos
+        
     def insertar_producto(self, producto: Producto) -> bool:
         """Inserta un nuevo producto en la base de datos"""
         try:
@@ -164,3 +169,66 @@ class DatabaseManager:
             else:
                 cursor.execute('SELECT id FROM productos WHERE nombre = ?', (nombre,))
             return cursor.fetchone() is not None
+        
+    def productos_totales(self) -> int:
+        '''Obtiene el numero total de productos en la DB'''
+        return len(self.obtener_todos_productos())
+    
+    def valor_total_inventario(self) -> float:
+        '''Obtiene el valor total de todos los productos'''
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT SUM(precio) FROM productos")
+            return cursor.fetchone()[0]
+        
+    def categorias_totales(self) -> int:
+        '''Obtiene el numero total de categorias de la base de datos'''
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM productos GROUP BY categoria")
+            return len(cursor.fetchall())
+        
+    def productos_bajos(self) -> int:
+        '''obtiene los productos del stock que tiene menos de 5 unidades'''
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM productos WHERE cantidad <= 5")
+            return len(cursor.fetchall())
+        
+    def productos_agotados(self):
+        '''Obtiene los productos que estan agotados'''
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM productos WHERE cantidad = 0")
+            return len(cursor.fetchall())
+        
+    def producto_mas_caro(self) -> dict:
+        '''Obtiene el producto mas caro'''
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT nombre, max(precio) as precio FROM productos")
+            resultado = cursor.fetchone()
+            return {
+                "nombre": resultado[0],
+                "precio": resultado[1]
+            }
+            
+            
+    def producto_mas_barato(self) -> dict:
+        '''Obtiene el producto mas barato'''
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT nombre, min(precio) as precio FROM productos")
+            resultado = cursor.fetchone()
+            return {
+                "nombre": resultado[0],
+                "precio": resultado[1]
+            }
+        
+    def promedio_precios(self):
+        '''Obtiene el promedio de precios de todos los productos'''
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT avg(precio) FROM productos")
+            return cursor.fetchone()[0]
+        

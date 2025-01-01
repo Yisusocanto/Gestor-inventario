@@ -86,6 +86,7 @@ class MainWindow:
             ("Eliminar", self.eliminar_producto),
             ("Editar", self.editar_producto),
             ("Vender", self.mostrar_ventana_ventas),
+            ("Reporte", self.mostrar_ventana_reporte),
             ("Refrescar", self.actualizar_treeview)
         ]
 
@@ -208,6 +209,11 @@ class MainWindow:
         """Abre la ventana de ventas"""
         from src.views.ventas_window import VentasWindow
         VentasWindow(self)
+        
+    def mostrar_ventana_reporte(self):
+        """Abre la ventana reporte"""
+        from src.views.reportes_windows import ReportesWindow
+        ReportesWindow(self)
 
     def limpiar_campos(self):
         """Limpia todos los campos de entrada"""

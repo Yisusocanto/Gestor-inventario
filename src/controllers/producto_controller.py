@@ -91,5 +91,37 @@ class ProductoController:
         return self.db.obtener_todos_productos()
     
     def obtener_busqueda(self, filtro: str, busqueda: str):
-        '''Obtiene un producto buscado por un filtro de la base de datos si existe'''
+        """Obtiene un producto buscado por un filtro de la base de datos si existe"""
         return self.db.obtener_busqueda(filtro, busqueda)
+    
+    def productos_totales(self) -> int:
+        '''Obtiene el numero total de productos en la DB'''
+        return self.db.productos_totales()
+    
+    def valor_total_inventario(self) -> float:
+        '''Obtiene el valor total de todos los productos'''
+        return self.db.valor_total_inventario()
+        
+    def categorias_totales(self) -> int:
+        '''Obtiene el numero total de categorias de la base de datos'''
+        return self.db.categorias_totales()
+        
+    def productos_bajos(self) -> int:
+        '''obtiene los productos del stock que tiene menos de 5 unidades'''
+        return self.db.productos_bajos()
+        
+    def productos_agotados(self):
+        '''Obtiene los productos que estan agotados'''
+        return self.db.productos_agotados()
+        
+    def producto_mas_caro(self) -> dict:
+        '''Obtiene el producto mas caro'''
+        return self.db.producto_mas_caro()
+        
+    def producto_mas_barato(self) -> dict:
+        '''Obtiene el producto mas barato'''
+        return self.db.producto_mas_barato()
+        
+    def promedio_precios(self):
+        '''Obtiene el proedio de precios de todos los productos'''
+        return self.db.promedio_precios()
