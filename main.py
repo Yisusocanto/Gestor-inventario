@@ -1,7 +1,7 @@
-from src.views.main_window import MainWindow
+from src.views.login_window import LoginWindow
 
 def main():
-    app = MainWindow()
+    app = LoginWindow()
     app.iniciar()
     
 if __name__ == "__main__":

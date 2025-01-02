@@ -2,14 +2,16 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from src.controllers.producto_controller import ProductoController
 from src.controllers.venta_controller import VentaController
+from src.models.usuario import Usuario
 
 class MainWindow:
     """Ventana principal de la aplicación"""
     
-    def __init__(self):
+    def __init__(self, usuario=Usuario):
         self.ventana = tk.Tk()
         self.producto_controller = ProductoController()
         self.venta_controller = VentaController()
+        self.usuario = usuario
         self.configurar_ventana()
         self.crear_widgets()
         self.actualizar_treeview()

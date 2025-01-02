@@ -1,6 +1,7 @@
 import sqlite3
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from src.models.producto import Producto
+from src.models.usuario import Usuario
 
 class DatabaseManager:
     """
@@ -11,6 +12,7 @@ class DatabaseManager:
         self.db_name = db_name
         self.inicializar_db()
         self.inicializar_db_ventas()
+        self.inicializar_db_usuarios()
 
     def inicializar_db(self):
         """Crea la tabla de productos si no existe"""
@@ -37,6 +39,19 @@ class DatabaseManager:
                     cantidad INTEGER NOT NULL,
                     fecha TEXT NOT NULL,
                     FOREIGN KEY (product_id) REFERENCES productos(id)
+                )
+            ''')
+            
+    def inicializar_db_usuarios(self):
+        """Crea la tabla de usuarios si no existe"""
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS usuarios (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT NOT NULL,
+                    contrasena TEXT NOT NULL,
+                    rol TEXT NOT NULL
                 )
             ''')
 
@@ -84,19 +99,19 @@ class DatabaseManager:
             cursor = conn.cursor()
             
             #busca por nombre
-            if filtro == "nombre":
+            if filtro == "Nombre":
                 cursor.execute('''
                     SELECT * FROM productos
                     WHERE nombre LIKE ?
                     ''', (f"%{busqueda}%",))
             #busca por categoria
-            elif filtro == "categoria":
+            elif filtro == "Categoria":
                 cursor.execute('''
                     SELECT * FROM productos
                     WHERE categoria LIKE ?
                     ''', (f"%{busqueda}%",))
             #busca por rango de precios entre 0 a n
-            elif filtro == "precio":
+            elif filtro == "Precio":
                 cursor.execute('''
                     SELECT * FROM productos
                     WHERE precio <= ?
@@ -231,4 +246,52 @@ class DatabaseManager:
             cursor = conn.cursor()
             cursor.execute("SELECT avg(precio) FROM productos")
             return cursor.fetchone()[0]
+    
+    
         
+    #SECCION DE USUARIOS
+    def verificar_usuario_existe(self, username: str) -> bool:
+        """Verifica si ya hay un usuario existente con ese username"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                        SELECT * FROM usuarios
+                        WHERE username = ?
+                        ''', (username,))
+            if cursor.fetchone():
+                return True
+            return False
+    
+    def crear_usuario(self, usuario: Usuario) -> bool:
+        """Crea un Usuario en la base de datos"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute('''
+                            INSERT INTO usuarios (username, contrasena, rol)
+                            VALUES (?,?,?)
+                            ''', (usuario.username, usuario.contrasena, usuario.rol))
+                return True
+        except sqlite3.Error as e:
+            print(f"Error al crear Usuario: {e}")
+            return False
+        
+    def login_verificacion(self, username: str, contrasena: str) -> tuple[bool,Optional[Usuario]]:
+        """verifica si el usuario y la contraseña estan en la base de datos y retorna el usuario si lo encuentra"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                        SELECT * FROM usuarios
+                        WHERE username = ? AND contrasena = ?
+                        ''', (username, contrasena))
+            resultado = cursor.fetchone()
+            if resultado:
+                usuario = Usuario(
+                    id=resultado[0],
+                    username=resultado[1],
+                    contrasena=resultado[2],
+                    rol=resultado[3]
+                )
+                return True, usuario
+            return False
+            

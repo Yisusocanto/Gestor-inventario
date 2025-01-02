@@ -10,10 +10,11 @@ Sistema de escritorio para gestionar inventario de productos, desarrollado en Py
 - ✅ Validaciones de datos
 - ✅ Base de datos local
 - ✅ Reportes y estadisticas
+- ✅ Sistema de usuarios basico
 
 ## Próximas Características
 
-- 📋 Sistema de usuarios y roles
+- 📋 Sistema de roles de usuarios
 - 📅 Historial de ventas
 - 🔔 Sistema de alertas de stock
 - 📦 Gestión de categorías
