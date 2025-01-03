@@ -15,7 +15,7 @@ class LoginWindow:
         
     def configurar_ventana(self):
         self.ventana.title("Login")
-        self.ventana.geometry("800x600")
+        self.ventana.geometry("400x200")
         
     def crear_widgets(self):
         frame_campos_entrada = ttk.Frame(self.ventana)

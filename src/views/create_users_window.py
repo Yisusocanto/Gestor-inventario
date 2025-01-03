@@ -12,7 +12,7 @@ class CreateUsersWindow:
         
     def configurar_ventana(self):
         self.ventana.title("Crear Usuario")
-        self.ventana.geometry("800x600")
+        self.ventana.geometry("500x300")
         
     def crear_widgets(self):
         frame_campos_entrada = ttk.Frame(self.ventana)

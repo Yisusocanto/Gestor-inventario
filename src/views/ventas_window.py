@@ -6,7 +6,7 @@ class VentasWindow:
 
     def __init__(self, parent):
         self.parent = parent
-        self.ventana = tk.Toplevel()
+        self.ventana = tk.Toplevel(parent.ventana)
         self.configurar_ventana()
         self.crear_widgets()
         self.actualizar_treeview()

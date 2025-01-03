@@ -130,7 +130,8 @@ class MainWindow:
             
         filtro = self.opciones_busqueda.get().capitalize()
         busqueda = self.entry_busqueda.get().capitalize()
-
+        
+        #obtiene los productos resultantes de la busqueda
         productos = self.producto_controller.obtener_busqueda(filtro, busqueda)
         if productos:
             for producto in productos:
@@ -145,67 +146,76 @@ class MainWindow:
 
     def crear_producto(self):
         """Maneja la creación de un nuevo producto"""
-        valores = {
-            'nombre': self.entries['nombre'].get(),
-            'categoria': self.entries['categoría'].get(),
-            'precio': self.entries['precio'].get(),
-            'cantidad': self.entries['cantidad'].get()
-        }
+        if self.usuario.rol == "admin":
+            valores = {
+                'nombre': self.entries['nombre'].get(),
+                'categoria': self.entries['categoría'].get(),
+                'precio': self.entries['precio'].get(),
+                'cantidad': self.entries['cantidad'].get()
+            }
 
-        exito, mensaje = self.producto_controller.crear_producto(**valores)
-        
-        if exito:
-            messagebox.showinfo("Éxito", mensaje)
-            self.limpiar_campos()
-            self.actualizar_treeview()
-        else:
-            messagebox.showerror("Error", mensaje)
-
-    def eliminar_producto(self):
-        """Maneja la eliminación de un producto"""
-        seleccion = self.tree.selection()
-        if not seleccion:
-            messagebox.showwarning("Advertencia", "Por favor, seleccione un producto")
-            return
-
-        if messagebox.askyesno("Confirmar", "¿Está seguro de eliminar el producto?"):
-            item = self.tree.item(seleccion[0])
-            id_producto = item['values'][0]
-            
-            exito, mensaje = self.producto_controller.eliminar_producto(id_producto)
+            exito, mensaje = self.producto_controller.crear_producto(**valores)
             
             if exito:
                 messagebox.showinfo("Éxito", mensaje)
+                self.limpiar_campos()
                 self.actualizar_treeview()
             else:
                 messagebox.showerror("Error", mensaje)
+        else:
+            messagebox.showerror("Error", "Solo los administradores pueden crear productos.")
+
+    def eliminar_producto(self):
+        """Maneja la eliminación de un producto"""
+        if self.usuario.rol == "admin":
+            seleccion = self.tree.selection()
+            if not seleccion:
+                messagebox.showwarning("Advertencia", "Por favor, seleccione un producto")
+                return
+
+            if messagebox.askyesno("Confirmar", "¿Está seguro de eliminar el producto?"):
+                item = self.tree.item(seleccion[0])
+                id_producto = item['values'][0]
+                
+                exito, mensaje = self.producto_controller.eliminar_producto(id_producto)
+                
+                if exito:
+                    messagebox.showinfo("Éxito", mensaje)
+                    self.actualizar_treeview()
+                else:
+                    messagebox.showerror("Error", mensaje)
+        else:
+            messagebox.showerror("Error", "Solo los administradores pueden eliminar productos.")
 
     def editar_producto(self):
         """Maneja la edición de un producto"""
-        seleccion = self.tree.selection()
-        if not seleccion:
-            messagebox.showwarning("Advertencia", "Por favor, seleccione un producto")
-            return
+        if self.usuario.rol == "admin":
+            seleccion = self.tree.selection()
+            if not seleccion:
+                messagebox.showwarning("Advertencia", "Por favor, seleccione un producto")
+                return
 
-        item = self.tree.item(seleccion[0])
-        id_producto = item['values'][0]
+            item = self.tree.item(seleccion[0])
+            id_producto = item['values'][0]
 
-        valores = {
-            'id': id_producto,
-            'nombre': self.entries['nombre'].get(),
-            'categoria': self.entries['categoría'].get(),
-            'precio': self.entries['precio'].get(),
-            'cantidad': self.entries['cantidad'].get()
-        }
+            valores = {
+                'id': id_producto,
+                'nombre': self.entries['nombre'].get(),
+                'categoria': self.entries['categoría'].get(),
+                'precio': self.entries['precio'].get(),
+                'cantidad': self.entries['cantidad'].get()
+            }
 
-        exito, mensaje = self.producto_controller.actualizar_producto(**valores)
-        
-        if exito:
-            messagebox.showinfo("Éxito", mensaje)
-            self.limpiar_campos()
-            self.actualizar_treeview()
+            exito, mensaje = self.producto_controller.actualizar_producto(**valores)
+            
+            if exito:
+                messagebox.showinfo("Éxito", mensaje)
+                self.limpiar_campos()
+                self.actualizar_treeview()
+            else:
+                messagebox.showerror("Error", mensaje)
         else:
-            messagebox.showerror("Error", mensaje)
+            messagebox.showerror("Error", "Solo los administradores pueden editar productos.")
 
     def mostrar_ventana_ventas(self):
         """Abre la ventana de ventas"""
