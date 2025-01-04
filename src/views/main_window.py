@@ -104,6 +104,14 @@ class MainWindow:
         for col in columnas:
             self.tree.heading(col, text=col.title())
             self.tree.column(col, width=100)
+            
+        barra_scroll = tk.Scrollbar(self.ventana, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscroll=barra_scroll.set)
+        barra_scroll.pack(side="right", fill="y")
+        
+        self.tree.tag_configure("agotado", background="red", foreground="white")
+        self.tree.tag_configure("bajo_stock", background="yellow")
+        self.tree.tag_configure("normal", background="white")
 
         self.tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 
@@ -115,13 +123,21 @@ class MainWindow:
 
         # Insertar productos
         for producto in self.producto_controller.obtener_todos_productos():
+            
+            if producto.cantidad == 0:
+                tag = "agotado"
+            elif producto.cantidad <= 5:
+                tag = "bajo_stock"
+            else:
+                tag = "normal"
+            
             self.tree.insert("", "end", values=(
                 producto.id,
                 producto.nombre,
                 producto.categoria,
                 producto.precio,
                 producto.cantidad
-            ))
+            ), tags=tag)
             
     def actualizar_treeview_busqueda(self):
         '''Actualiza el treeview con el producto buscado cuando se clickea el boton buscar'''
@@ -135,13 +151,21 @@ class MainWindow:
         productos = self.producto_controller.obtener_busqueda(filtro, busqueda)
         if productos:
             for producto in productos:
+                
+                if producto.cantidad == 0:
+                    tag = "agotado"
+                elif producto.cantidad <= 5:
+                    tag = "bajo_stock"
+                else:
+                    tag = "normal"
+                
                 self.tree.insert("", "end", values=(
                 producto.id,
                 producto.nombre,
                 producto.categoria,
                 producto.precio,
                 producto.cantidad
-                ))
+                ), tags=tag)
                 
 
     def crear_producto(self):
